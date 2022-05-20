@@ -1,64 +1,50 @@
-package heap
+package main
 
 import (
-	"log"
-	"sync"
+	"errors"
 )
 
-type Heap interface {
-	GetValue()
-	PutValue(obj, flag interface{}) // obj,存储的内容，flag 根据这个排序
-}
-
-type heapElement struct {
-	Value interface{}
-	Flag  interface{}
-}
-
-var _ Heap = (*MinHeap)(nil)
-
-type MinHeap struct {
-	list []heapElement
-	lock *sync.Mutex
-}
-
-// 递减
-func sortLow(list []heapElement) {}
+type MinHeap []int
 
 func NewMinHeap(lists ...[]int) (*MinHeap, error) {
-	resList := []int{}
+	resList := &MinHeap{}
 	if len(lists) > 0 {
 		for _, list := range lists {
-			resList = construct(list)
+			resList = construct(true, list)
 		}
 	}
-	log.Println(resList)
-	return &MinHeap{
-		list: []heapElement{},
-		lock: &sync.Mutex{},
-	}, nil
-}
-
-func (h *MinHeap) GetValue() {
-
-}
-
-func (h *MinHeap) PutValue(obj, flag interface{}) {
-
+	return resList, nil
 }
 
 // construct 堆构造函数
-func construct(list []int) []int {
-	resList := make([]int, len(list))
+func construct(symbol bool, list []int) *MinHeap {
+	hp := make(MinHeap, len(list))
 	for i, v := range list {
-		resList[i] = v
-		sort(i, resList)
+		hp[i] = v
+		hp.upSort(i, symbol)
 	}
-	return resList
+	return &hp
 }
 
-// 上浮排序（小根）
-func sort(flag int, list []int) {
+func (m *MinHeap) getValue() (int, error) {
+	if len(*m) == 0 {
+		return 0, errors.New("heap is no val")
+	}
+	p := (*m)[0]
+	(*m)[0], (*m)[len(*m)-1] = (*m)[len(*m)-1], (*m)[0]
+	*m = (*m)[:len(*m)-1]
+	m.lowSort(0, true)
+	return p, nil
+}
+
+func (m *MinHeap) putValue(val int) {
+	*m = append(*m, val)
+	m.upSort(len(*m)-1, true)
+
+}
+
+// 上浮排序,symbol true 为小根队
+func (m *MinHeap) upSort(flag int, symbol bool) {
 	for {
 		if flag <= 0 {
 			break
@@ -67,29 +53,46 @@ func sort(flag int, list []int) {
 		if (flag)%2 == 0 {
 			index = (flag - 2) / 2
 		}
-		if list[index] > list[flag] {
-			list[index], list[flag] = list[flag], list[index]
+		switch {
+		case symbol:
+			if (*m)[index] > (*m)[flag] {
+				(*m)[index], (*m)[flag] = (*m)[flag], (*m)[index]
+			}
+		default:
+			if (*m)[index] < (*m)[flag] {
+				(*m)[index], (*m)[flag] = (*m)[flag], (*m)[index]
+			}
 		}
+
 		flag = index
 	}
 }
 
-// 下浮（小根）
-func lowSort(flag int, list []int) {
+// 下浮,symbol true 为小根队
+func (m *MinHeap) lowSort(flag int, symbol bool) {
 	for {
-		left := flag*2 + 1
-		if left > len(list)-1 {
+		left := flag*2 + 1    // 获取左孩子
+		if left > len(*m)-1 { // 无左孩子说明结束
 			break
 		}
-		right := flag*2 + 2
+		right := flag*2 + 2 // 获取右孩子
 
 		index := left
-		if right <= len(list)-1 && list[left] > list[right] {
+		// 有右孩子的情况下，判断左右孩子的大小
+		if right <= len(*m)-1 && (*m)[left] > (*m)[right] {
 			index = right
 		}
-		if list[index] < list[flag] {
-			list[index], list[flag] = list[flag], list[index]
+		switch {
+		case symbol:
+			if (*m)[index] < (*m)[flag] {
+				(*m)[index], (*m)[flag] = (*m)[flag], (*m)[index]
+			}
+		default:
+			if (*m)[index] > (*m)[flag] {
+				(*m)[index], (*m)[flag] = (*m)[flag], (*m)[index]
+			}
 		}
+
 		flag = index
 	}
 }
