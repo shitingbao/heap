@@ -12,13 +12,13 @@ func TestMaxHeap(t *testing.T) {
 		log.Println(err)
 		return
 	}
-	log.Println("first:", h.List)
-	log.Println(h.getValue())
-	log.Println("h:", h.List)
+	log.Println("first:", h.List())
+	log.Println(h.GetValue())
+	log.Println("h:", h.List())
 	h.putValue(8)
 	h.putValue(14)
-	log.Println(h.getValue())
-	log.Println("h:", h.List)
+	log.Println(h.GetValue())
+	log.Println("h:", h.List())
 }
 
 func TestMinHeap(t *testing.T) {
@@ -28,11 +28,11 @@ func TestMinHeap(t *testing.T) {
 		log.Println(err)
 		return
 	}
-	log.Println("first:", h.List)
-	log.Println(h.getValue())
-	log.Println("h:", h.List)
+	log.Println("first:", h.List())
+	log.Println(h.GetValue())
+	log.Println("h:", h.List())
 	h.putValue(8)
 	h.putValue(14)
-	log.Println(h.getValue())
-	log.Println("h:", h.List)
+	log.Println(h.GetValue())
+	log.Println("h:", h.List())
 }

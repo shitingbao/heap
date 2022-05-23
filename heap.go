@@ -15,29 +15,31 @@ type MaxHeap struct {
 }
 
 // 基本的队列结构
+// 用切片构造基本数据类型，索引对应树内节点序号
 type heap struct {
-	List   []int
-	Symbol bool // true 代表
+	list   []int
+	symbol bool // true 代表大根堆
 }
 
-// NewMaxHeap 可传入多个切片构造一个小根堆
+// NewMaxHeap 可传入切片构造一个大根堆
 func NewMaxHeap(list []int) (*MaxHeap, error) {
-	h := &heap{Symbol: true, List: make([]int, len(list))}
+	h := &heap{symbol: true, list: make([]int, len(list))}
 	h.construct(list)
 	return &MaxHeap{h}, nil
 }
 
-// NewMinHeap 可传入多个切片构造一个小根堆
-func NewMinHeap(list []int) (*MinHeap, error) {
-	h := &heap{Symbol: false, List: make([]int, len(list))}
-	h.construct(list)
+// NewMinHeap 可传入切片构造一个小根堆
+func NewMinHeap(l []int) (*MinHeap, error) {
+	h := &heap{symbol: false, list: make([]int, len(l))}
+	h.construct(l)
 	return &MinHeap{h}, nil
 }
 
 // construct 堆构造函数
+// 将元素依次加入堆中构造完整的堆
 func (h *heap) construct(list []int) {
 	for i, v := range list {
-		h.List[i] = v
+		h.list[i] = v
 		h.upSort(i)
 	}
 }
@@ -46,26 +48,32 @@ func (m *heap) GetValue() (int, error) {
 	return m.getValue()
 }
 
+// 反馈堆顶的值，并下浮，重新形成新的堆
 func (m *heap) getValue() (int, error) {
-	if len(m.List) == 0 {
+	if len(m.list) == 0 {
 		return 0, errors.New("heap is no val")
 	}
-	p := m.List[0]
-	m.List[0], m.List[len(m.List)-1] = m.List[len(m.List)-1], m.List[0]
-	m.List = m.List[:len(m.List)-1]
+	p := m.list[0]
+	m.list[0], m.list[len(m.list)-1] = m.list[len(m.list)-1], m.list[0]
+	m.list = m.list[:len(m.list)-1]
 	m.lowSort(0)
 	return p, nil
 }
 
 func (m *heap) PutValue(val int) { m.putValue(val) }
 
+// 加入一个值，并上浮形成新的堆
 func (m *heap) putValue(val int) {
-	m.List = append(m.List, val)
-	m.upSort(len(m.List) - 1)
-
+	m.list = append(m.list, val)
+	m.upSort(len(m.list) - 1)
 }
 
-// 上浮排序,symbol true 为小根队
+func (m *heap) List() []int {
+	return m.list
+}
+
+// 上浮排序,symbol true 为大根队
+// 获取父节点序号，比较大小并交换
 func (m *heap) upSort(flag int) {
 	for {
 		if flag <= 0 {
@@ -76,44 +84,45 @@ func (m *heap) upSort(flag int) {
 			index = (flag - 2) / 2
 		}
 		switch {
-		case m.Symbol:
-			if (m.List)[index] < (m.List)[flag] {
-				(m.List)[index], (m.List)[flag] = (m.List)[flag], (m.List)[index]
+		case m.symbol:
+			if (m.list)[index] < (m.list)[flag] {
+				(m.list)[index], (m.list)[flag] = (m.list)[flag], (m.list)[index]
 			}
 		default:
-			if (m.List)[index] > (m.List)[flag] {
-				(m.List)[index], (m.List)[flag] = (m.List)[flag], (m.List)[index]
+			if (m.list)[index] > (m.list)[flag] {
+				(m.list)[index], (m.list)[flag] = (m.list)[flag], (m.list)[index]
 			}
 		}
 		flag = index
 	}
 }
 
-// 下浮,symbol true 为小根队
+// 下浮,symbol true 为大根队
+// 获取子节点，判断大小并交换，注意左右节点是否存在
 func (m *heap) lowSort(flag int) {
 	for {
 		left := flag*2 + 1        // 获取左孩子
-		if left > len(m.List)-1 { // 无左孩子说明结束
+		if left > len(m.list)-1 { // 无左孩子说明结束
 			break
 		}
 		right := flag*2 + 2 // 获取右孩子
 		index := left
 		switch {
-		case m.Symbol:
+		case m.symbol:
 			// 有右孩子的情况下，判断左右孩子的大小
-			if right <= len(m.List)-1 && (m.List)[left] < (m.List)[right] {
+			if right <= len(m.list)-1 && (m.list)[left] < (m.list)[right] {
 				index = right
 			}
-			if (m.List)[index] > (m.List)[flag] {
-				(m.List)[index], (m.List)[flag] = (m.List)[flag], (m.List)[index]
+			if (m.list)[index] > (m.list)[flag] {
+				(m.list)[index], (m.list)[flag] = (m.list)[flag], (m.list)[index]
 			}
 		default:
 			// 有右孩子的情况下，判断左右孩子的大小
-			if right <= len(m.List)-1 && (m.List)[left] > (m.List)[right] {
+			if right <= len(m.list)-1 && (m.list)[left] > (m.list)[right] {
 				index = right
 			}
-			if (m.List)[index] < (m.List)[flag] {
-				(m.List)[index], (m.List)[flag] = (m.List)[flag], (m.List)[index]
+			if (m.list)[index] < (m.list)[flag] {
+				(m.list)[index], (m.list)[flag] = (m.list)[flag], (m.list)[index]
 			}
 		}
 		flag = index
