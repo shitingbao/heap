@@ -24,14 +24,14 @@ type heap struct {
 
 // NewMaxHeap 可传入切片构造一个大根堆
 func NewMaxHeap(list []int) (*MaxHeap, error) {
-	h := &heap{symbol: true, list: make([]int, len(list))}
+	h := &heap{symbol: true, list: make([]int, len(list)), lock: NewSpinLock()}
 	h.construct(list)
 	return &MaxHeap{h}, nil
 }
 
 // NewMinHeap 可传入切片构造一个小根堆
 func NewMinHeap(l []int) (*MinHeap, error) {
-	h := &heap{symbol: false, list: make([]int, len(l))}
+	h := &heap{symbol: false, list: make([]int, len(l)), lock: NewSpinLock()}
 	h.construct(l)
 	return &MinHeap{h}, nil
 }
