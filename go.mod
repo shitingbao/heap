@@ -1,3 +1,3 @@
-module heap
+module github.com/shitingbao/heap
 
-go 1.18
+go 1.21

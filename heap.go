@@ -2,6 +2,7 @@ package heap
 
 import (
 	"errors"
+	"sync"
 )
 
 // MinHeap 小根堆
@@ -19,7 +20,7 @@ type MaxHeap struct {
 type heap struct {
 	list   []int
 	symbol bool // true 代表大根堆
-	lock   spinLock
+	lock   sync.Locker
 }
 
 // NewMaxHeap 可传入切片构造一个大根堆

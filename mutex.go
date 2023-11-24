@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 )
 
+var _ sync.Locker = (*spinLock)(nil)
+
 type spinLock uint32
 
 const maxBackoff = 16 // 每次自旋最大次数
