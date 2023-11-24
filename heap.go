@@ -46,6 +46,21 @@ func (h *heap) construct(list []int) {
 	}
 }
 
+func (h *heap) TryGetValue() (int, error) {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+	return h.tryGetValue()
+}
+
+// 反馈堆顶的值，并下浮，重新形成新的堆
+func (h *heap) tryGetValue() (int, error) {
+	if len(h.list) == 0 {
+		return 0, errors.New("heap is no val")
+	}
+	p := h.list[0]
+	return p, nil
+}
+
 func (h *heap) GetValue() (int, error) {
 	h.lock.Lock()
 	defer h.lock.Unlock()
@@ -54,10 +69,10 @@ func (h *heap) GetValue() (int, error) {
 
 // 反馈堆顶的值，并下浮，重新形成新的堆
 func (h *heap) getValue() (int, error) {
-	if len(h.list) == 0 {
-		return 0, errors.New("heap is no val")
+	p, err := h.tryGetValue()
+	if err != nil {
+		return 0, err
 	}
-	p := h.list[0]
 	h.list[0], h.list[len(h.list)-1] = h.list[len(h.list)-1], h.list[0]
 	h.list = h.list[:len(h.list)-1]
 	h.lowSort(0)
